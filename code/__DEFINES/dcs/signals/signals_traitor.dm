@@ -37,3 +37,6 @@
 
 /// Called by an battle royale implanter when successfully implanting someone. Passes the implanted mob.
 #define COMSIG_ROYALE_IMPLANTED "royale_implanted"
+
+/// Called when a gas leaker device successfully completes its final cycle
+#define COMSIG_GAS_LEAKER_FINISHED "gas_leaker_finished"
