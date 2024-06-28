@@ -6,7 +6,7 @@
 	weight = OBJECTIVE_WEIGHT_UNLIKELY
 
 /datum/traitor_objective/release_gas
-	name = "Plant a gas releasing device and defend it until it finishes its operation" //Change this
+	name = "Plant a gas releasing device and defend it until it completes its operation"
 	description = "Call in the device at %AREA1% or %AREA2% and activate it. It will begin to release dangerous gas in cycles, ensure it can finish all of its cycles."
 
 	progression_minimum = 30 MINUTES
@@ -124,14 +124,27 @@
 	/// What cycle of releasing gas we are on
 	var/current_cycle = 1
 	/// How long between each cycle of releasing gas
-	var/cycle_time = 15 SECONDS
+	var/cycle_time = 15 SECONDS //Debug value, make this bigger
 	/// How many moles of gas we release on each cycle, not including the final cycle
-	var/moles_per_cycle = 200
+	var/moles_per_cycle = 1000 //Four cycles will release about the same as a roundstart full canister
 	/// How many moles of gas we release on the final cycle
-	var/moles_final_cycle = 2000
+	var/moles_final_cycle = 5000 //Final cycle will release a little more than a roundstart canister
+	/// What gases we can spawn, weighted list
+	var/static/list/gas_options = list(
+		GAS_PLASMA = 5,
+		GAS_N2O = 5,
+		GAS_TRITIUM = 1,
+	)
+	/// What gas we will spawn
+	var/chosen_gas
 
 /datum/armor/gas_leaker
 	fire = 100 //Dont like the idea of its own fire breaking it
+	laser = 30
+
+/obj/machinery/gas_leaker/Initialize(mapload)
+	. = ..()
+	chosen_gas = pick_weight(gas_options)
 
 /obj/machinery/gas_leaker/update_icon_state()
 	. = ..()
@@ -142,22 +155,22 @@
 
 /obj/machinery/gas_leaker/interact()
 	if (started_operation == FALSE)
-		started_operation = TRUE
 		start_operation()
-		update_icon_state()
 	. = ..()
 
 /// Start the process of opening and closing
 /obj/machinery/gas_leaker/proc/start_operation()
+	started_operation = TRUE
+	update_icon_state()
 	addtimer(CALLBACK(src, PROC_REF(do_cycle)), cycle_time)
 
 /// Open and release some gas, then close. Set up the next cycle if we havent finished all our cycles
 /obj/machinery/gas_leaker/proc/do_cycle()
-	balloon_alert_to_viewers("Releasing Gas...")
+	balloon_alert_to_viewers("Releasing Gas...") //remove this
 	if (current_cycle == max_cycles) //If we are on the final cycle, release extra gas
-		atmos_spawn_air("[GAS_PLASMA]=[moles_final_cycle]")
+		atmos_spawn_air("[chosen_gas]=[moles_final_cycle]")
 	else
-		atmos_spawn_air("[GAS_PLASMA]=[moles_per_cycle]") //change this
+		atmos_spawn_air("[chosen_gas]=[moles_per_cycle]")
 
 	// Set up the next cycle, if we havent already done all of our cycles
 	current_cycle += 1
