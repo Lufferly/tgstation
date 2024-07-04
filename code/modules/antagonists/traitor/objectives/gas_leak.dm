@@ -18,10 +18,6 @@
 	var/list/area/chosen_areas = list()
 	/// If we have already sent down the gas leaker device
 	var/device_sent = FALSE
-	/// If the gas leaker device has completed its operation
-	var/device_completed = FALSE
-	/// If the gas leaker device has been destroyed
-	var/device_destroyed = FALSE
 
 /datum/traitor_objective/release_gas/can_generate_objective(datum/mind/generating_for, list/possible_duplicates)
 	if (length(possible_duplicates) > 0)
@@ -110,8 +106,8 @@
 	icon = 'icons/obj/pipes_n_cables/atmos.dmi'
 	icon_state = "siphon"
 	density = TRUE
-	max_integrity = 350
-	integrity_failure = 0.1
+	max_integrity = 250
+	integrity_failure = 0.2
 	use_power = NO_POWER_USE
 	armor_type = /datum/armor/gas_leaker
 
